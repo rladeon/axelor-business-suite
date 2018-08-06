@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_5.0.xsd">
+    
+    <grid name="stock-config-grid" title="Stock configurations" model="com.axelor.apps.stock.db.StockConfig">
+        <field name="company" form-view="company-form" grid-view="company-grid"/>
+    </grid>
+
+	<form name="stock-config-form" title="Stock configuration" model="com.axelor.apps.stock.db.StockConfig" onNew="action-stock-config-record-default" width="large">
+	  <panel name="main" >
+	    <field name="company" canEdit="false" form-view="company-form" colSpan="4" grid-view="company-grid"/>
+	  </panel>
+	  <panel name="virtualStockLocationsInformations" title="Virtual stock locations informations">
+	    <field name="customerVirtualStockLocation" domain="self.typeSelect = 3" colSpan="4" form-view="stock-location-form" grid-view="stock-location-grid"/>
+	    <field name="supplierVirtualStockLocation" domain="self.typeSelect = 3" colSpan="4" form-view="stock-location-form" grid-view="stock-location-grid"/>
+	    <field name="inventoryVirtualStockLocation" domain="self.typeSelect = 3" colSpan="4" form-view="stock-location-form" grid-view="stock-location-grid"/>
+		  <field name="productionVirtualStockLocation" domain="self.typeSelect = 3" colSpan="4" form-view="stock-location-form" grid-view="stock-location-grid" if-module="axelor-production" if="__config__.app.isApp('production')"/>
+	  </panel>
+	  <panel name="stockMoveInformations" title="Stock move informations">
+		  <panel colSpan="12">
+			  <field name="receiptDefaultStockLocation" domain="self.company = :company and self.typeSelect != 3" colSpan="4" form-view="stock-location-form" grid-view="stock-location-grid"/>
+			  <field name="pickupDefaultStockLocation" domain="self.company = :company and self.typeSelect != 3" colSpan="4" form-view="stock-location-form" grid-view="stock-location-grid"/>
+			  <field name="wasteStockLocation" domain="self.company = :company and self.typeSelect != 3" colSpan="4" form-view="stock-location-form" grid-view="stock-location-grid" if-module="axelor-production" if="__config__.app.isApp('production')"/>
+			  <field name="componentDefaultStockLocation" domain="self.company = :company and self.typeSelect != 3" colSpan="4" form-view="stock-location-form" grid-view="stock-location-grid" if-module="axelor-production" if="__config__.app.isApp('production')"/>
+			  <field name="finishedProductsDefaultStockLocation" domain="self.company = :company and self.typeSelect != 3" colSpan="4" form-view="stock-location-form" grid-view="stock-location-grid" if-module="axelor-production" if="__config__.app.isApp('production')"/>
+		  </panel>
+	  </panel>
+	  <panel name="customsInformation" title="Customs">
+	  	<field name="customsWeightUnit" domain="self.unitTypeSelect = 1"/>
+	  </panel>
+      <panel title="Logistical forms">
+        <field name="realizeStockMovesUponParcelPalletCollection" />
+      </panel>
+      <panel-related field="freightCarrierCustomerAccountNumberList" form-view="freight-carrier-customer-account-number-form"
+          grid-view="freight-carrier-customer-account-number-grid" editable="true" />
+ 		<panel>
+            <field name="stockMoveAutomaticMail"/>
+			<field name="stockMoveMessageTemplate" requiredIf="stockMoveAutomaticMail"
+				   showIf="stockMoveAutomaticMail"
+				   form-view="template-form" grid-view="template-grid"/>
+		</panel>
+	</form>
+	
+	<action-record name="action-stock-config-record-default" model="com.axelor.apps.stock.db.StockConfig">
+		<field name="company" expr="eval: _company" if="_company != null"/>
+		<field name="company"  expr="eval:__user__.activeCompany" if="_company == null &amp;&amp; __user__.activeCompany != null"/>
+    	<field name="company"  expr="eval:__repo__(Company).all().fetchOne()" if="_company == null &amp;&amp; __user__.activeCompany == null &amp;&amp; __repo__(Company).all().fetch().size == 1"/>
+	</action-record>
+	
+	<action-view name="action-company-view-stock-config" title="Stock config (${ name })" model="com.axelor.apps.stock.db.StockConfig">
+    	<view type="form" name="stock-config-form"/>
+    	<context name="_showRecord" expr="eval: __self__.stockConfig?.id"/>
+    	<context name="_company" expr="eval: __this__"/>
+    </action-view>
+	
+</object-views>

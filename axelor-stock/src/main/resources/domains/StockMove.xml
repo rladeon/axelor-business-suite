@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_5.0.xsd">
+
+  <module name="stock" package="com.axelor.apps.stock.db"/>
+
+  <entity name="StockMove" lang="java">
+
+	<string name="stockMoveSeq" namecolumn="true" title="Ref." readonly="true"/>
+    <string name="name" title="Name"/>
+    <many-to-one name="fromStockLocation" ref="com.axelor.apps.stock.db.StockLocation" required="true" title="From stock location"/>
+    <many-to-one name="toStockLocation" ref="com.axelor.apps.stock.db.StockLocation" required="true" title="To stock location"/>
+    
+    <date name="estimatedDate" title="Estimated date"/>
+    <date name="realDate" title="Move date" readonly="true"/>
+
+    <integer name="statusSelect" title="Status" selection="stock.move.status.select" required="true" readonly="true" default="1"/>
+    <integer name="typeSelect" title="Type Status" required="true" selection="stock.move.type.select"/>
+    
+    <many-to-one name="fromAddress" ref="com.axelor.apps.base.db.Address" title="From address"/>
+    <many-to-one name="toAddress" ref="com.axelor.apps.base.db.Address" title="To address"/>
+
+    <string name="fromAddressStr" title="From address" large="true" multiline="true"/>
+    <string name="toAddressStr" title="To address" large="true" multiline="true"/>
+
+    <many-to-one name="company" ref="com.axelor.apps.base.db.Company" title="Company" required="true"/>
+    <many-to-one name="partner" ref="com.axelor.apps.base.db.Partner" title="Partner"/>
+
+    <one-to-many name="stockMoveLineList" ref="com.axelor.apps.stock.db.StockMoveLine" mappedBy="stockMove" orderBy="sequence" title="Stock move content"/>
+    <one-to-many name="plannedStockMoveLineList" ref="com.axelor.apps.stock.db.StockMoveLine" mappedBy="plannedStockMove" orderBy="sequence"/>
+
+    <boolean name="isWithReturnSurplus" title="Return surplus"/>
+    <boolean name="isWithBackorder" title="Manage BackOrder" default="true"/>
+    
+    <string name="trackingNumber" title="Tracking Number"/>
+    <integer name="numOfPackages" title="Number Of Packages"/>
+    <integer name="numOfPalettes" title="Number Of Palettes"/>
+    <decimal name="grossWeight" title="Gross Weight"/>
+    
+    <decimal name="exTaxTotal" title="Total W.T." precision="20" scale="2"/>
+    
+    <string name="description" title="Description" large="true"/>
+    
+    <many-to-one name="shipmentMode" ref="com.axelor.apps.stock.db.ShipmentMode"/>
+    <many-to-one name="freightCarrierMode" ref="com.axelor.apps.stock.db.FreightCarrierMode"/>
+   
+    <many-to-one name="carrierPartner" ref="com.axelor.apps.base.db.Partner" title="Carrier" />
+   	<many-to-one name="forwarderPartner" ref="com.axelor.apps.base.db.Partner" title="Forwarder" />
+	<many-to-one name="incoterm" ref="com.axelor.apps.stock.db.Incoterm" />
+    
+    <integer name="conformitySelect" title="Conformity" selection="stock.move.line.conformity.select"/>
+
+    <boolean name="fullySpreadOverLogisticalFormsFlag" default="false" title="Fully spread over logistical forms" />
+
+    <many-to-one name="cancelReason" title="Cancel reason" ref="com.axelor.apps.base.db.CancelReason"/>
+    <boolean name="stockMoveAutomaticMail" title="Send email on stock move realization" default="false"/>
+    <many-to-one name="stockMoveMessageTemplate" title="Message template" ref="com.axelor.apps.message.db.Template"/>
+
+    <many-to-one name="tradingName" ref="com.axelor.apps.base.db.TradingName"/>
+    <many-to-one name="printingSettings" ref="com.axelor.apps.base.db.PrintingSettings"/>
+
+    <boolean name="isIspmRequired" title="Is ISPM15 required ?"/>
+    <boolean name="isReversion" readonly="true" />
+
+    <unique-constraint columns="stockMoveSeq,company"/>
+    
+    <extra-code><![CDATA[
+	
+	   	// STATUS SELECT
+		public static final int STATUS_DRAFT = 1;
+		public static final int STATUS_PLANNED = 2;
+		public static final int STATUS_REALIZED = 3;
+		public static final int STATUS_CANCELED = 4;
+
+		// TYPE SELECT
+		public static final int TYPE_INTERNAL = 1;
+		public static final int TYPE_OUTGOING = 2;
+		public static final int TYPE_INCOMING = 3;
+
+		// CONFORMITY SELECT
+		public static final int CONFORMITY_NONE = 1;
+		public static final int CONFORMITY_COMPLIANT = 2;
+		public static final int CONFORMITY_NON_COMPLIANT = 3;
+	
+	]]></extra-code>
+    
+  </entity>
+</domain-models>

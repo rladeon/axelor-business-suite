@@ -1,0 +1,24 @@
+apply plugin: "com.axelor.app-module"
+
+apply from: "../version.gradle"
+
+apply {
+	version = absVersion
+}
+
+spotless { 
+	java {  
+		googleJavaFormat()
+	} 
+}
+
+axelor {
+	title "Axelor Marketing"
+	description "Axelor Marketing Module"
+}
+
+dependencies {
+	compile project(":modules:axelor-crm")
+	compile project(":modules:axelor-studio")
+	compile "com.mandrillapp.wrapper.lutung:lutung:0.0.7"
+}

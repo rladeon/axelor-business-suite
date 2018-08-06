@@ -1,0 +1,30 @@
+apply plugin: "com.axelor.app-module"
+
+apply from: "../version.gradle"
+
+apply {
+	version = absVersion
+}
+
+spotless { 
+	java {  
+		googleJavaFormat()
+	} 
+}
+
+axelor {
+	title "Axelor Account"
+	description "Axelor Account Module"
+}
+
+
+dependencies {
+	compile project(":modules:axelor-base")
+
+	compile 'xalan:xalan:2.7.2'
+
+	compile group: 'jdom', name: 'jdom', version: '1.1'
+	compile group: 'org.apache.xmlbeans', name: 'xmlbeans', version: '2.5.0'
+	compile "org.bouncycastle:bcprov-jdk15:1.46"
+
+}

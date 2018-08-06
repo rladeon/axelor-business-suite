@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_5.0.xsd">
+    
+    <grid name="prod-process-grid" title="Production process" model="com.axelor.apps.production.db.ProdProcess">
+    	<field name="name"/>
+    	<field name="company"/>
+    	<field name="code" x-bind="{{code|unaccent|uppercase}}"/>
+        <field name="stockLocation" grid-view="stock-location-grid" form-view="stock-location-form"/>
+        <field name="product"/>
+    </grid>
+    
+    <form name="prod-process-form" title="Production process" model="com.axelor.apps.production.db.ProdProcess"
+          onNew="action-prod-process-record-set-default-company"
+          onLoad="action-prod-process-record-count-number-of-phases"
+          onSave="action-prod-process-method-validate-prod-process" width="large">
+
+    	<toolbar>
+			<button name="print" title="Print" icon="fa-print" onClick="save,action-production-process-print"/>
+			<button name="newVersion" title="Generate new version"  if="__config__.app.getApp('production').manageProdProcessVersion" onClick="action-production-process-check-other-version,action-production-process-generate-new-version"/>
+		</toolbar>
+
+		<panel name="main">
+            <panel stacked="true" colSpan="8">
+                <field name="fullName" hidden="true" showIf="$readonly()" showTitle="false" css="label-bold bold large"/>
+                <field name="name" hidden="true" showIf="!$readonly()" css="label-bold bold large"/>
+            </panel>
+            <field name="$numberOfPhases" showTitle="false" readonly="true" showIf="$numberOfPhases > 0" colSpan="4">
+                <viewer depends="$numberOfPhases">
+                    <![CDATA[
+                        <h4 class="text-right">
+                            <span class="label label-default" style="background-color: #2185D0; margin: 5px 0 !important; display: inline-table; line-height: initial; border-top-right-radius: 0; border-bottom-right-radius: 0; padding-right: 0.4em;" x-translate>Number of phases</span><span class="label label-default" style="background-color: #23C6C8; margin: 5px 0 !important; display: inline-table; line-height: initial; border-top-left-radius: 0; border-bottom-left-radius: 0;">{{record.$numberOfPhases}}</span>
+                        </h4>
+					]]>
+                </viewer>
+            </field>
+	    	<field name="code" x-bind="{{code|unaccent|uppercase}}"/>
+            <spacer/>
+            <field name="company" widget="SuggestBox" form-view="company-form" grid-view="company-grid"/>
+	        <field name="stockLocation" required="true" grid-view="stock-location-grid" form-view="stock-location-form" onChange="action-prod-process-record-set-second-location" domain="self.company = :company"/>
+	        <field name="product" requiredIf="!isEnabledForAllProducts" canEdit="false" grid-view="product-grid" form-view="product-form" domain="self.productTypeSelect = 'storable'"/>
+	        <field name="producedProductStockLocation" grid-view="stock-location-grid" form-view="stock-location-form" domain="self.company = :company"/>
+	        <field name="isConsProOnOperation" onChange="action-prod-process-validate-is-cons-pro"/>
+	        <field name="outsourcing" onChange="action-prod-process-method-change-prodprocesslist-outsourcing"/>
+	        <field name="isEnabledForAllProducts"/>
+        </panel>
+
+        <panel-related field="prodProcessLineList" colSpan="12" height="15" onChange="action-prod-process-record-count-number-of-phases" grid-view="prod-process-line-grid" form-view="prod-process-line-form"/>
+
+        <panel name="versionManagement" title="Version management" hidden="true" showIf="versionNumber &gt; 1">
+            <field name="versionNumber" colSpan="3" />
+            <field name="originalProdProcess" grid-view="prod-process-grid" form-view="prod-process-form" colSpan="3" readonly="true"/>
+ 		</panel>            
+    </form>
+    
+    <action-validate name="action-prod-process-validate-is-cons-pro">
+    	<error message="You can't manage the consumed products on phases because this production process is related to several bills of material"
+			   if="isConsProOnOperation == true &amp;&amp; __repo__(BillOfMaterial).all().filter('self.prodProcess.id = ?1', __self__ ? __self__.id : 0).fetch().size &gt; 1" action="action-prod-process-record-false"/>
+    </action-validate>
+    
+    <action-record name="action-prod-process-record-false" model="com.axelor.apps.production.db.ProdProcess">
+    	<field name="isConsProOnOperation" expr="false"/>
+    </action-record>
+    
+    <action-method name="action-prod-process-method-validate-prod-process">
+    	<call class="com.axelor.apps.production.web.ProdProcessController" method="validateProdProcess"/>
+    </action-method>
+    
+    <action-method name="action-prod-process-method-change-prodprocesslist-outsourcing">
+    	<call class="com.axelor.apps.production.web.ProdProcessController" method="changeProdProcessListOutsourcing"/>
+    </action-method>
+    
+    <action-method name="action-production-process-print">
+		<call class="com.axelor.apps.production.web.ProdProcessController" method="print"/>
+	</action-method>
+	
+	<action-method name="action-production-process-check-other-version">
+     	<call class="com.axelor.apps.production.web.ProdProcessController" method="checkOriginalProductionProcess"/>
+     </action-method>
+     
+     <action-method name="action-production-process-generate-new-version">
+     	<call class="com.axelor.apps.production.web.ProdProcessController" method="generateNewVersion"/>
+     </action-method>
+	
+	<action-record name="action-prod-process-record-set-second-location" model="com.axelor.apps.production.db.ProdProcess">
+		<field name="producedProductStockLocation" expr="eval: stockLocation" if="producedProductStockLocation == null"/>
+	</action-record>
+	
+	<action-record name="action-prod-process-record-set-default-company" model="com.axelor.apps.production.db.ProdProcess">
+		<field name="company" expr="eval: __user__.getActiveCompany()"/>
+	</action-record>
+
+    <action-record name="action-prod-process-record-count-number-of-phases" model="com.axelor.apps.production.db.ProdProcess">
+        <field name="$numberOfComponents" expr="eval: prodProcessLineList.size()"/>
+    </action-record>
+</object-views>

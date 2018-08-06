@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_5.0.xsd">
+
+	<module name="base" package="com.axelor.apps.base.db"/>
+
+	<entity name="AppProduction" lang="java" cachable="true" extends="App">
+		<boolean name="prodOrderMgtOnSO" title="Production order management from sale order" default="false"/>
+		<boolean name="productionOrderGenerationAuto" title="Generate production orders automatically" default="false"/>
+    	
+    	<many-to-one name="workCenterProduct" ref="com.axelor.apps.base.db.Product" title="Default work center product"/>
+   		<many-to-one name="workCenterCostSheetGroup" ref="com.axelor.apps.production.db.CostSheetGroup" title="Cost sheet group for work center"/>
+ 		<many-to-one name="productCostSheetGroup" ref="com.axelor.apps.production.db.CostSheetGroup" title="Cost sheet group for product"/>
+ 		
+ 		<many-to-one name="cycleUnit" ref="com.axelor.apps.base.db.Unit" title="Cycle unit"/>
+ 		
+ 		<boolean name="manageResidualProductOnBom" title="Manage residual products on BOM"/>
+ 		<boolean name="subtractProdResidualOnCostSheet" title="Subtract the product residuals cost on Cost sheet"/>
+ 		<boolean name="manageBillOfMaterialVersion" title="Manage bill of material versions" />
+ 		<boolean name="manageProdProcessVersion" title="Manage production process versions" />
+
+		<boolean name="enableConfigurator" title="Enable production configurator"/>
+		
+		<integer name="nbDecimalDigitForBomQty" title="Nb of digits for BOM quantities" max="10" default="2"/>
+		
+		<many-to-one name="barcodeTypeConfig" title="Barcode Type" ref="com.axelor.apps.base.db.BarcodeTypeConfig" default="EAN_13"/>
+	</entity>
+
+</domain-models>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_5.0.xsd">
+
+    <grid model="com.axelor.apps.stock.db.LogisticalFormLine" title="Packaging lines" name="logistical-form-line-grid"
+        orderBy="sequence">
+        <hilite strong="true" color="default" if="$contains([1, 2], typeSelect)" />
+        <field name="typeSelect" width="65" onChange="sync,action-logistical-form-line-type-change" required="false" />
+        <field name="stockMoveLine" width="170" onSelect="action-logistical-form-line-stock-move-line-domain" onChange="sync,action-logistical-form-line-stock-move-line-change"
+            readonlyIf="typeSelect != 3" form-view="stock-move-line-form" grid-view="stock-move-line-sale-order-grid"
+            canEdit="false" />
+        <field name="stockMoveLine.stockMove" width="170" form-view="stock-move-form" />
+        <field name="stockMoveLine.product.code" width="120" title="Product code" />
+        <field name="stockMoveLine.product.name" width="170" title="Product description" />
+        <field name="stockMoveLine.stockMove.saleOrder.saleOrderSeq" width="100" title="Internal number" if="__config__.app.isApp('supplychain')" />
+        <field name="stockMoveLine.stockMove.saleOrder.orderNumber" width="120" title="Order number" if="__config__.app.isApp('supplychain')" />
+        <!-- <field name="stockMoveLine.netWeight" title="Unit net weight" /> --> <!-- Should be null when stockMoveLine is null -->
+        <field name="unitNetWeight" width="75"/>
+        <field name="qty" width="55" readonlyIf="typeSelect != 3" onChange="sync" />
+        <field name="parcelPalletNumber" width="75" readonlyIf="typeSelect == 3" onChange="sync" />
+        <field name="grossWeight" width="75" readonlyIf="typeSelect == 3" />
+        <field name="dimensions" width="130" readonlyIf="typeSelect == 3" />
+        <field name="logisticalForm.deliverToCustomerPartner" form-view="partner-customer-form" hidden="true" />
+        <field name="sequence" hidden="true" />
+    </grid>
+
+    <form model="com.axelor.apps.stock.db.LogisticalFormLine" title="Packaging line" name="logistical-form-line-form"
+        width="large" canCopy="true">
+        <panel>
+            <field name="typeSelect" onChange="action-logistical-form-line-type-change" />
+            <field name="stockMoveLine" onSelect="action-logistical-form-line-stock-move-line-domain" onChange="action-logistical-form-line-stock-move-line-change"
+                hideIf="typeSelect != 3" form-view="stock-move-line-form" grid-view="stock-move-line-sale-order-grid"
+                canEdit="false" />
+            <field name="stockMoveLine.stockMove" hideIf="typeSelect != 3" form-view="stock-move-form" />
+            <field name="stockMoveLine.product.code" title="Product code" hideIf="typeSelect != 3" />
+            <field name="stockMoveLine.product.name" title="Product description" hideIf="typeSelect != 3" />
+            <field name="stockMoveLine.stockMove.saleOrder.saleOrderSeq" title="Internal number" hideIf="typeSelect != 3"
+                if="__config__.app.isApp('supplychain')" />
+            <field name="stockMoveLine.stockMove.saleOrder.orderNumber" title="Order number" hideIf="typeSelect != 3"
+                if="__config__.app.isApp('supplychain')" />
+            <field name="stockMoveLine.netWeight" title="Unit net weight" hideIf="typeSelect != 3" />
+            <field name="qty" hideIf="typeSelect != 3" />
+            <field name="parcelPalletNumber" hideIf="typeSelect == 3" />
+            <field name="grossWeight" hideIf="typeSelect == 3" />
+            <field name="dimensions" hideIf="typeSelect == 3" />
+            <field name="logisticalForm.deliverToCustomerPartner" form-view="partner-customer-form" hidden="true" />
+        </panel>
+    </form>
+
+    <action-group name="action-logistical-form-line-type-change">
+        <action name="action-logistical-form-line-record-type-reset" />
+        <action name="action-logistical-form-line-type-init-parcel-pallet" if="typeSelect != __repo__(LogisticalFormLine).TYPE_DETAIL" />
+    </action-group>
+
+    <action-record name="action-logistical-form-line-record-type-reset" model="com.axelor.apps.stock.db.LogisticalFormLine">
+        <field name="stockMoveLine" expr="eval: null" />
+        <field name="qty" expr="eval: null" />
+        <field name="parcelPalletNumber" expr="eval: null" />
+        <field name="grossWeight" expr="eval: null" />
+        <field name="dimensions" expr="eval: null" />
+        <field name="unitNetWeight" expr="eval: null" />
+    </action-record>
+
+    <action-group name="action-logistical-form-line-stock-move-line-change">
+        <action name="action-logistical-form-line-record-set-unit-net-weight" />
+        <action name="action-logistical-form-line-method-set-qty" />
+    </action-group>
+
+    <action-record name="action-logistical-form-line-record-set-unit-net-weight" model="com.axelor.apps.stock.db.LogisticalFormLine">
+        <field name="unitNetWeight" expr="eval: stockMoveLine?.netWeight" />
+    </action-record>
+
+    <action-method name="action-logistical-form-line-method-set-qty">
+        <call class="com.axelor.apps.stock.web.LogisticalFormLineController" method="setQty" />
+    </action-method>
+
+    <action-method name="action-logistical-form-line-stock-move-line-domain">
+        <call class="com.axelor.apps.stock.web.LogisticalFormLineController" method="setStockMoveLineDomain" />
+    </action-method>
+
+    <action-method name="action-logistical-form-line-type-init-parcel-pallet">
+        <call class="com.axelor.apps.stock.web.LogisticalFormLineController" method="initParcelPallet" />
+    </action-method>
+
+</object-views>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_5.0.xsd">
+
+  <module name="sale" package="com.axelor.apps.sale.db"/>
+
+  <entity name="SaleOrderLine" lang="java">
+  
+  	<string name="fullName" namecolumn="true">
+	  	<![CDATA[
+	  		String fullName = "";
+	  		if(saleOrder != null && saleOrder.getSaleOrderSeq() != null){
+	  			fullName += saleOrder.getSaleOrderSeq();
+	  		}
+	  		if(productName != null)  {
+	  			fullName += "-";
+	  			if(productName.length() > 100)  {
+	  				fullName += productName.substring(1, 100);
+	  			}
+	  			else  {  fullName += productName;  }
+	  		}
+	  		return fullName;
+	  	]]>
+  	</string>
+  	<many-to-one name="saleOrder" ref="com.axelor.apps.sale.db.SaleOrder" title="Sale order"/>
+  	<integer name="sequence" title="Seq."/>
+  	<many-to-one name="product" ref="com.axelor.apps.base.db.Product" title="Product"/>
+  	<decimal name="qty" title="Qty" default="1"/>
+  	<boolean name="isToPrintLineSubTotal" title="Print subtotal / line"/>
+  	<string name="productName" title="Displayed Product name" required="true" translatable="true"/>
+  	<decimal name="price" title="Unit price" precision="20" scale="10"/>
+  	<decimal name="priceDiscounted" title="Unit price discounted" precision="20" scale="10"/>
+  	
+  	<many-to-one name="taxLine" ref="com.axelor.apps.account.db.TaxLine" title="Tax"/>
+      <many-to-one name="taxEquiv" ref="com.axelor.apps.account.db.TaxEquiv" title="Tax Equiv"/>
+  	<decimal name="exTaxTotal" title="Total W.T."/>
+  	<decimal name="inTaxTotal" title="Total A.T.I."/>
+  	
+  	<string name="description" title="Description" large="true"/>
+  	<many-to-one name="unit" ref="com.axelor.apps.base.db.Unit" title="Unit"/>
+  	
+  	<many-to-one name="supplierPartner" ref="com.axelor.apps.base.db.Partner" title="Supplier"/>
+  	<decimal name="discountAmount" title="Discount amount" precision="20" scale="10"/>
+  	<integer name="discountTypeSelect" title="Discount Type" selection="base.price.list.line.amount.type.select" default="3"/>
+  	
+  	<date name="estimatedDelivDate" title="Estimated delivery date"/>
+  	
+<!-- 	Margins -->
+	<decimal name="subTotalCostPrice" title="SubTotal cost price"/>
+	<decimal name="subTotalGrossMargin" title="SubTotal gross margin"/>
+	<decimal name="subMarginRate" title="Sub margin rate"/>
+  	
+<!--   	Devis-commande fournisseur -->
+	<date name="deliveryDate" title="Delivery date"/>
+	<decimal name="deliveredQty" title="Delivered quantity"/>
+
+<!--   	Champ technique non affiché, utilisé pour les reportings -->
+  	<decimal name="companyExTaxTotal" title="Total W.T. in company currency" hidden="true"/>
+  	<decimal name="companyCostPrice" title="Unit cost price in company currency" hidden="true"/>
+  	<decimal name="companyInTaxTotal" title="Total A.T.I. in company currency" hidden="true"/>
+  	<decimal name="companyCostTotal" title="Total cost in company currency" hidden="true"/>
+<!--   	<boolean name="isTitleLine" title="Title Line"/> -->
+	<integer name="typeSelect" title="Type" selection="sale.order.line.type.select"/>
+	<many-to-one name="parentLine" ref="com.axelor.apps.sale.db.SaleOrderLine" />
+  	<one-to-many name="subLineList" ref="com.axelor.apps.sale.db.SaleOrderLine" mappedBy="parentLine" title="Pack lines"/>
+  	<decimal name="totalPack" title="Total pack"/>
+
+	<finder-method name="findAllBySaleOrder" using="saleOrder" all="true"/>
+
+	<extra-code>
+		<![CDATA[
+			public static final int TYPE_NORMAL = 0;
+			public static final int TYPE_TITLE = 1;
+			public static final int TYPE_PACK = 2;
+	  	]]>
+	</extra-code>
+  	
+  </entity>
+
+</domain-models>

@@ -1,0 +1,85 @@
+/*
+ * Axelor Business Solutions
+ *
+ * Copyright (C) 2018 Axelor (<http://axelor.com>).
+ *
+ * This program is free software: you can redistribute it and/or  modify
+ * it under the terms of the GNU Affero General Public License, version 3,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package com.axelor.apps.sale.service.saleorder;
+
+import com.axelor.apps.base.db.Company;
+import com.axelor.apps.base.db.Currency;
+import com.axelor.apps.base.db.Partner;
+import com.axelor.apps.base.db.PriceList;
+import com.axelor.apps.sale.db.SaleOrder;
+import com.axelor.auth.db.User;
+import com.axelor.exception.AxelorException;
+import com.axelor.team.db.Team;
+import com.google.inject.persist.Transactional;
+import java.time.LocalDate;
+import java.util.List;
+
+public interface SaleOrderCreateService {
+  /**
+   * Initialize a new sale order
+   *
+   * @param salemanUser User recorded as salesman on order, if <code>null</code>, will be set to
+   *     current user.
+   * @param company Company bound to the order, if <code>null</code>, will be bound to salesman
+   *     active company.
+   * @param contactPartner Customer contact to assign to the user, might be <code>null</code>.
+   * @param currency Order's currency, should not be <code>null</code>.
+   * @param deliveryDate Expected delivery date for order (might be <code>null</code>).
+   * @param internalReference Unused (…)
+   * @param externalReference Client reference for order, if any
+   * @param orderDate Date of order (if <code>null</code>, will be set to today's date).
+   * @param priceList Pricelist to use, if <code>null</code>, will default to partner's default
+   *     price list.
+   * @param clientPartner Customer bound to the order, should not be <code>null</code>
+   * @param team Team managing the order, if <code>null</code>, will default to salesman active
+   *     team.
+   * @return The created order
+   * @throws AxelorException
+   */
+  public SaleOrder createSaleOrder(
+      User salemanUser,
+      Company company,
+      Partner contactPartner,
+      Currency currency,
+      LocalDate deliveryDate,
+      String internalReference,
+      String externalReference,
+      LocalDate orderDate,
+      PriceList priceList,
+      Partner clientPartner,
+      Team team)
+      throws AxelorException;
+
+  public SaleOrder createSaleOrder(Company company) throws AxelorException;
+
+  public SaleOrder mergeSaleOrders(
+      List<SaleOrder> saleOrderList,
+      Currency currency,
+      Partner clientPartner,
+      Company company,
+      Partner contactPartner,
+      PriceList priceList,
+      Team team)
+      throws AxelorException;
+
+  @Transactional
+  public SaleOrder createTemplate(SaleOrder context);
+
+  @Transactional
+  public SaleOrder createSaleOrder(SaleOrder context);
+}

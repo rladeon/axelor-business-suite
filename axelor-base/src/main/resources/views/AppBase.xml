@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_5.0.xsd">
+	
+	<form name="app-base-config-form" title="App base" model="com.axelor.apps.base.db.AppBase" width="large">
+		<toolbar>
+		    <button name="new" title="New" hidden="true"/>
+		    <button name="delete" title="Delete" hidden="true"/>
+		    <button name="back" title="Back" hidden="true"/>
+		    <button name="copy" title="Copy" hidden="true"/>
+		    <button name="search" title="Search" hidden="true"/>
+		    <button name="exportObjects" title="Export Object" onClick="action-base-general-export-objects"/>
+		    <button name="remindTimesheets" title="Timesheets Reminder" onClick="action-method-general-remind-timesheet"/>
+		</toolbar>
+		<panel>
+			<field name="today"/>
+		</panel>
+		<panel-tabs>
+			<panel name="configuration" title="Configuration" colSpan="12">
+		    	<field name="defaultPartnerLanguage" />
+				<field name="enableTradingNamesManagement" widget="boolean-switch"/>
+		    	<field name="activateSendingEmail" widget="boolean-switch"/>
+		    	<field name="emailAccountByUser" widget="boolean-switch"/>
+		    	<field name="productInAtiSelect"/>
+		    	<field name="nbDecimalDigitForUnitPrice"/>
+		    	<field name="computeMethodDiscountSelect"/>
+		    	<field name="timeLoggingPreferenceSelect"/>
+		    	<field name="dailyWorkHours"/>
+		    	<field name="unitDays" form-view="unit-form" grid-view="unit-grid"/>
+		    	<field name="unitHours" form-view="unit-form" grid-view="unit-grid"/>
+		    	<field name="unitMinutes" form-view="unit-form" grid-view="unit-grid"/>
+		    	<field name="teamManagement" widget="boolean-switch"/>
+		    	<panel name="productBarCode" title="Product BarCode">
+		    		<field name="activateBarCodeGeneration" widget="Boolean-switch"/>
+		    		<field name="editProductBarcodeType" showIf="activateBarCodeGeneration==true" widget="boolean-switch"/>
+     			 	<field name="barcodeTypeConfig" showIf="activateBarCodeGeneration==true" requiredIf="editProductBarcodeType==false"/>
+				</panel>
+                <field name="generatePartnerSequence" widget="boolean-switch"/>
+				<field name="generateProductSequence" widget="boolean-switch"/>
+				<field name="manageProductVariants" widget="boolean-switch"/>
+				<field name="manageMultiBanks" widget="boolean-switch"/>
+				<field name="enterpriseCommunication" widget="boolean-switch"/>
+				<field name="document" widget="boolean-switch"/>
+                <field name="passwordChangedTemplate"/>
+			</panel>
+		    <panel name="interfaces" title="Interfaces"  colSpan="12">
+				<panel name="map" title="Mapping"  colSpan="12">
+					<field name="mapApiSelect"/>
+					<button name="checkMapApi" title="Test mapping service connection"   onClick="save,com.axelor.apps.base.web.AppBaseController:checkMapApi"/>
+					<field name="googleMapsApiKey" widget="password"/>
+				</panel>
+				<panel name="qas" title="Addresses validation"  colSpan="12">
+					<field name="qasWsdlUrl"/>
+					<button name="checkQasWsdl" title="Test connection to QAS webservice"   onClick="com.axelor.apps.base.web.AddressController:check"/>
+					<field name="hasQasValidation" widget="boolean-switch"/>
+				</panel>
+				<panel name="ws" title="Webservices"  colSpan="12">
+					<field name="currencyWsURL" colSpan="12"/>
+				</panel>
+		    </panel>
+		    <panel name="currencyConversion" title="Currency conversion" colSpan="12">
+				<button name="updateCurrencyConversion" title="Update &amp; Historize conversion rate"  onClick="save,action-base-method-update-currency-conversion"/>
+				<field name="currencyConversionLineList" colSpan="12" grid-view="currency-conversion-line-grid" form-view="currency-conversion-line-form"/>
+			</panel>
+		</panel-tabs>
+	</form>
+	
+	<!-- ACTION METHOD -->
+
+	<action-method name="action-base-method-update-currency-conversion">
+		<call class="com.axelor.apps.base.web.AppBaseController" method="updateCurrencyConversion" />
+	</action-method>
+	
+	<action-method name="action-base-general-export-objects">
+	    <call method="exportObjects" class="com.axelor.apps.base.web.AppBaseController"/>
+	</action-method>
+	
+	<action-method name="action-method-general-remind-timesheet">
+		<call class="com.axelor.apps.base.web.MailBatchController" method="remindTimesheetGeneral"/>
+	</action-method>
+	
+</object-views>
